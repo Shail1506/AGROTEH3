@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".selectlanguage">
+
+
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="280sp"
+        android:layout_height="50sp"
+        android:text="SELECT LANGUAGE"
+        android:layout_marginLeft="65sp"
+        android:layout_marginTop="150sp"
+        android:textSize="30sp"/>
+
+    <RadioButton
+        android:id="@+id/rb"
+        android:layout_width="170sp"
+        android:layout_height="40sp"
+        android:textSize="25sp"
+        android:layout_marginTop="300sp"
+        android:layout_marginLeft="75sp"
+        android:text="GUJARATI" />
+
+    <RadioButton
+        android:id="@+id/rb1"
+        android:layout_width="170sp"
+        android:layout_height="40sp"
+        android:textSize="25sp"
+        android:layout_marginTop="360sp"
+        android:layout_marginLeft="75sp"
+        android:text="HINDI"/>
+
+    <RadioButton
+        android:id="@+id/rd2"
+        android:layout_width="170sp"
+        android:layout_height="40sp"
+        android:textSize="25sp"
+        android:layout_marginTop="420sp"
+        android:layout_marginLeft="75sp"
+        android:text="ENGLISH"/>
+
+    <Button
+        android:id="@+id/bnxt"
+        android:layout_width="120sp"
+        android:layout_height="50sp"
+        android:textSize="20sp"
+        android:layout_marginTop="520sp"
+        android:layout_marginLeft="50sp"
+        android:text="NEXT" />
+
+    <Button
+        android:id="@+id/bcan"
+        android:layout_width="120sp"
+        android:layout_height="50sp"
+        android:textSize="20sp"
+        android:layout_marginTop="520sp"
+        android:layout_marginLeft="200sp"
+        android:text="CANCLE"/>
+
+</RelativeLayout>

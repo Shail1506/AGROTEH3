@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">AGROTEH</string>
+    <string name="signed_in" />
+    <string name="firebase_status_fmt" />
+    <string name="signed_out" />
+    <string name="status_sign_in_failed" />
+    <string name="instant_validation" />
+    <string name="status_verification_succeeded" />
+    <string name="status_verification_failed" />
+    <string name="status_code_sent" />
+</resources>
