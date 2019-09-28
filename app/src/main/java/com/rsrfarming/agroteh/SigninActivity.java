@@ -24,29 +24,30 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.rsrfarming.agroteh.model.User;
 
 import java.util.concurrent.TimeUnit;
 
-    public class SigninActivity extends AppCompatActivity {
-        private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
+public class SigninActivity extends AppCompatActivity implements View.OnClickListener {
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     private static final String KEY_VERIFY_IN_PROGRESS = "key_verify_in_progress";
-    private boolean mVerificationInProgress= false;
+    private boolean mVerificationInProgress = false;
     private static final String TAG = "PhoneAuthActivity";
     private String mVerificationId;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
     private static final int STATE_INITIALIZED = 1;
-    private int STATE_CODE_SENT=2;
-    private int STATE_VERIFY_SUCCESS=5;
-    private static final int STATE_VERIFY_FAILED =3 ;
-    private static final int STATE_SIGNIN_SUCCESS =6 ;
-    private static final int STATE_SIGNIN_FAILED =5 ;
+    private static final int STATE_CODE_SENT = 2;
+    private static final int STATE_VERIFY_SUCCESS = 5;
+    private static final int STATE_VERIFY_FAILED = 3;
+    private static final int STATE_SIGNIN_SUCCESS = 6;
+    private static final int STATE_SIGNIN_FAILED = 7;
 
 
-
-
-    EditText  et_fname,et_lname,et_phn,et_code;
-    RadioButton r_btn1,r_btn2;
-    Button btn_sub,btn_can,btn_verify;
+    EditText et_fname, et_lname, et_phn, et_code;
+    RadioButton r_btn1, r_btn2;
+    Button btn_sub, btn_can, btn_verify;
     FirebaseAuth fAuth;
 
     @Override
@@ -57,24 +58,22 @@ import java.util.concurrent.TimeUnit;
         et_fname = findViewById(R.id.first_name);
         et_lname = findViewById(R.id.last_name);
         et_phn = findViewById(R.id.phone_num);
-        et_code=findViewById(R.id.enter_code);
+        et_code = findViewById(R.id.enter_code);
 
         r_btn1 = findViewById(R.id.r_btn1);
         r_btn2 = findViewById(R.id.r_btn2);
 
         btn_sub = findViewById(R.id.submit);
         btn_can = findViewById(R.id.cancle);
-        btn_verify=findViewById(R.id.verify_number);
-
+        btn_verify = findViewById(R.id.verify_number);
 
 
         fAuth = FirebaseAuth.getInstance();
 
 
-
-        btn_sub.setOnClickListener((View.OnClickListener) this);
-        btn_verify.setOnClickListener((View.OnClickListener) this);
-        btn_can.setOnClickListener((View.OnClickListener) this);
+        btn_sub.setOnClickListener(this);
+        btn_verify.setOnClickListener(this);
+        btn_can.setOnClickListener(this);
         //mSignOutButton.setOnClickListener(this);
 
         // [START initialize_auth]
@@ -84,7 +83,7 @@ import java.util.concurrent.TimeUnit;
 
         // Initialize phone auth callbacks
         // [START phone_auth_callbacks]
-        mCallbacks= new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             @Override
             public void onVerificationCompleted(PhoneAuthCredential credential) {
                 // This callback will be invoked in two situations:
@@ -123,7 +122,7 @@ import java.util.concurrent.TimeUnit;
                 } else if (e instanceof FirebaseTooManyRequestsException) {
                     // The SMS quota for the project has been exceeded
                     // [START_EXCLUDE]
-                    Toast.makeText(getApplicationContext(),"QUOTA EXCEEDED",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "QUOTA EXCEEDED", Toast.LENGTH_SHORT).show();
                     // [END_EXCLUDE]
                 }
 
@@ -162,6 +161,10 @@ import java.util.concurrent.TimeUnit;
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = fAuth.getCurrentUser();
+        if(currentUser!=null && currentUser.getUid()!=null)
+        {
+            // redirect to dashboard
+        }
         updateUI(currentUser);
 
         // [START_EXCLUDE]
@@ -228,9 +231,15 @@ import java.util.concurrent.TimeUnit;
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
 
-                            FirebaseUser user = task.getResult().getUser();
-                            // [START_EXCLUDE]
-                            updateUI(STATE_SIGNIN_SUCCESS, user);
+                            FirebaseUser firebaseUser = task.getResult().getUser();
+                            if (firebaseUser != null) {
+                                User user= new User(firebaseUser.getUid(),"name","phonenum","farmer");
+                                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                                DatabaseReference myRef = database.getReference("user").child(firebaseUser.getUid());
+                                myRef.setValue(user);
+                                // [START_EXCLUDE]
+                                updateUI(STATE_SIGNIN_SUCCESS, firebaseUser);
+                            }
                             // [END_EXCLUDE]
                         } else {
                             // Sign in failed, display a message and update the UI
@@ -282,26 +291,26 @@ import java.util.concurrent.TimeUnit;
             case STATE_INITIALIZED:
                 // Initialized state, show only the phone number field and start button
                 enableViews(btn_sub, et_phn);
-                disableViews(btn_verify,btn_can, et_code);
-                mDetailText.setText(null);
+                disableViews(btn_verify, btn_can, et_code);
+                // mDetailText.setText(null);
                 break;
             case STATE_CODE_SENT:
                 // Code sent state, show the verification field, the
                 enableViews(btn_verify, btn_can, et_phn, et_code);
                 disableViews(btn_sub);
-                mDetailText.setText(R.string.status_code_sent);
+                // mDetailText.setText(R.string.status_code_sent);
                 break;
             case STATE_VERIFY_FAILED:
                 // Verification has failed, show all options
                 enableViews(btn_sub, btn_verify, btn_can, et_phn,
                         et_code);
-                mDetailText.setText(R.string.status_verification_failed);
+                // mDetailText.setText(R.string.status_verification_failed);
                 break;
             case STATE_VERIFY_SUCCESS:
                 // Verification has succeeded, proceed to firebase sign in
-                disableViews(btn_sub, btn_verify, btn_can,et_phn,
-                       et_code);
-                mDetailText.setText(R.string.status_verification_succeeded);
+                disableViews(btn_sub, btn_verify, btn_can, et_phn,
+                        et_code);
+//                mDetailText.setText(R.string.status_verification_succeeded);
 
                 // Set the verification text based on the credential
                 if (cred != null) {
@@ -315,7 +324,7 @@ import java.util.concurrent.TimeUnit;
                 break;
             case STATE_SIGNIN_FAILED:
                 // No-op, handled by sign-in check
-                Toast.makeText(getApplicationContext(),"SIGNIN FAILED",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "SIGNIN FAILED", Toast.LENGTH_LONG).show();
                 break;
             case STATE_SIGNIN_SUCCESS:
                 // Np-op, handled by sign-in check
@@ -323,23 +332,22 @@ import java.util.concurrent.TimeUnit;
         }
 
         //if (user == null) {
-            // Signed out
-          //  mPhoneNumberViews.setVisibility(View.VISIBLE);
-            //mSignedInViews.setVisibility(View.GONE);
+        // Signed out
+        //  mPhoneNumberViews.setVisibility(View.VISIBLE);
+        //mSignedInViews.setVisibility(View.GONE);
 
-            //mStatusText.setText(R.string.signed_out);
+        //mStatusText.setText(R.string.signed_out);
         //} else {
-            // Signed in
-          //  mPhoneNumberViews.setVisibility(View.GONE);
-            //mSignedInViews.setVisibility(View.VISIBLE);
+        // Signed in
+        //  mPhoneNumberViews.setVisibility(View.GONE);
+        //mSignedInViews.setVisibility(View.VISIBLE);
 
-            enableViews(et_phn, et_code);
-            et_phn.setText(null);
-            et_code.setText(null);
+        enableViews(et_phn, et_code);
+        et_phn.setText(null);
+        et_code.setText(null);
 
-            //mStatusText.setText(R.string.signed_in);
-            //mDetailText.setText(getString(R.string.firebase_status_fmt, user.getUid()));
-        }
+        //mStatusText.setText(R.string.signed_in);
+        //mDetailText.setText(getString(R.string.firebase_status_fmt, user.getUid()));
     }
 
 
@@ -368,14 +376,14 @@ import java.util.concurrent.TimeUnit;
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.btn_sub:
+            case R.id.submit:
                 if (!validatePhoneNumber()) {
                     return;
                 }
 
                 startPhoneNumberVerification(et_phn.getText().toString());
                 break;
-            case R.id.buttonVerifyPhone:
+            case R.id.verify_number:
                 String code = et_code.getText().toString();
                 if (TextUtils.isEmpty(code)) {
                     et_code.setError("Cannot be empty.");
