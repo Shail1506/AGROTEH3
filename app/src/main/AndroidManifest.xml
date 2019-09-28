@@ -9,7 +9,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ExampleSignin"></activity>
         <activity android:name=".selectlanguage" />
         <activity android:name=".SigninActivity" />
         <activity android:name=".SplashActivity">
